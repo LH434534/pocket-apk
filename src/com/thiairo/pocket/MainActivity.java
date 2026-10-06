@@ -167,8 +167,10 @@ public class MainActivity extends Activity {
     public final class Bridge {
 
         @JavascriptInterface
-        public void toast(String msg) {
-            runOnUiThread(() -> MainActivity.this.toast(msg));
+        public void toast(final String msg) {
+            runOnUiThread(new Runnable() {
+                @Override public void run() { MainActivity.this.toast(msg); }
+            });
         }
 
         @JavascriptInterface
@@ -184,14 +186,20 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public void reload() {
-            runOnUiThread(() -> web.loadUrl("file:///android_asset/index.html"));
+            runOnUiThread(new Runnable() {
+                @Override public void run() {
+                    web.loadUrl("file:///android_asset/index.html");
+                }
+            });
         }
 
         @JavascriptInterface
         public void clearCache() {
-            runOnUiThread(() -> {
-                web.clearCache(true);
-                toast("cache limpo");
+            runOnUiThread(new Runnable() {
+                @Override public void run() {
+                    web.clearCache(true);
+                    toast("cache limpo");
+                }
             });
         }
     }
