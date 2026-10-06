@@ -76,12 +76,14 @@ jobs:
           find build/obj -name '*.class' | wc -l
 
           echo "--- 4. d8 ---"
-          (cd build/obj && find . -name '*.class' > ../classes.txt)
-          wc -l < build/classes.txt
+          find build/obj -name '*.class' > build/classes.txt
+          echo "classes encontradas: $(wc -l < build/classes.txt)"
+          head -3 build/classes.txt
           d8 --lib "$ANDROID_JAR" --output build/dex @build/classes.txt 2>&1 | tail -15
           ls -l build/dex/
 
           echo "--- 5. empacotar dex ---"
+          test -f build/dex/classes.dex || { echo "FALHA: classes.dex nao gerado"; exit 1; }
           cp build/unsigned.apk build/aligned-input.apk
           (cd build/dex && zip -q -X ../../build/aligned-input.apk classes.dex)
           unzip -l build/aligned-input.apk | tail -5
