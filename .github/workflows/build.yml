@@ -117,10 +117,14 @@ jobs:
         if: always()
         run: |
           mkdir -p out
-          cp build/build.log out/build.log || true
+          cp build.log out/build.log || true
           cp build/pocket-signed.apk out/pocket.apk 2>/dev/null || \
             cp build/pocket.apk out/pocket.apk 2>/dev/null || true
-          ls -lh out/
+          ls -lh out/ || true
+          echo "--- raiz ---"
+          ls -lh . | head -20
+          echo "--- git status ---"
+          git status --porcelain | head -20
           git config user.name build-bot
           git config user.email build@bot.local
           git add -f out || true
