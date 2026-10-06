@@ -1,0 +1,69 @@
+===== BUILD 2026-10-06T21:01:07Z =====
+ANDROID_HOME=/usr/local/lib/android/sdk
+build-tools: /usr/local/lib/android/sdk/build-tools/37.0.0
+platform: /usr/local/lib/android/sdk/platforms/android-37.2
+android.jar existe: sim
+/usr/local/lib/android/sdk/build-tools/37.0.0/aapt2
+/usr/local/lib/android/sdk/build-tools/37.0.0/d8
+/usr/local/lib/android/sdk/build-tools/37.0.0/zipalign
+/usr/local/lib/android/sdk/build-tools/37.0.0/apksigner
+--- 1. aapt2 compile ---
+-rw-r--r-- 1 runner runner 1480 Oct  6 21:01 build/res.zip
+--- 2. aapt2 link ---
+-rw-r--r-- 1 runner runner 14788 Oct  6 21:01 build/unsigned.apk
+--- 3. javac ---
+2
+src/com/thiairo/pocket/MainActivity.java:171: error: cannot find symbol
+            runOnUiThread(() -> MainActivity.this.toast(msg));
+                          ^
+  symbol:   method metafactory(Lookup,String,MethodType,MethodType,MethodHandle,MethodType)
+  location: interface LambdaMetafactory
+Note: src/com/thiairo/pocket/MainActivity.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+1 error
+Fatal Error: Unable to find method metafactory
+4
+--- 4. d8 ---
+	at com.android.tools.r8.internal.fk3.a(R8_9.2.4-dev_ca5b565a5c7da61f18c57930a2823deaa7db40f41bc4509a15d64fc6a8b340be:21)
+	at com.android.tools.r8.internal.fk3.error(R8_9.2.4-dev_ca5b565a5c7da61f18c57930a2823deaa7db40f41bc4509a15d64fc6a8b340be:1)
+	at com.android.tools.r8.internal.ew0.a(R8_9.2.4-dev_ca5b565a5c7da61f18c57930a2823deaa7db40f41bc4509a15d64fc6a8b340be:31)
+	at com.android.tools.r8.BaseCompilerCommand$Builder.d(R8_9.2.4-dev_ca5b565a5c7da61f18c57930a2823deaa7db40f41bc4509a15d64fc6a8b340be:7)
+	at com.android.tools.r8.D8Command$Builder.d(R8_9.2.4-dev_ca5b565a5c7da61f18c57930a2823deaa7db40f41bc4509a15d64fc6a8b340be:68)
+	at com.android.tools.r8.BaseCommand$Builder.a(R8_9.2.4-dev_ca5b565a5c7da61f18c57930a2823deaa7db40f41bc4509a15d64fc6a8b340be:1)
+	at com.android.tools.r8.internal.vs0.a(R8_9.2.4-dev_ca5b565a5c7da61f18c57930a2823deaa7db40f41bc4509a15d64fc6a8b340be:28)
+	... 5 more
+	Suppressed: java.lang.RuntimeException: com.android.tools.r8.internal.j: Invalid output: build/dex
+Output must be a .zip or .jar archive or an existing directory
+		at com.android.tools.r8.internal.fk3.a(R8_9.2.4-dev_ca5b565a5c7da61f18c57930a2823deaa7db40f41bc4509a15d64fc6a8b340be:27)
+		at com.android.tools.r8.BaseCommand$Builder.a(R8_9.2.4-dev_ca5b565a5c7da61f18c57930a2823deaa7db40f41bc4509a15d64fc6a8b340be:3)
+		... 6 more
+	Caused by: [CIRCULAR REFERENCE: com.android.tools.r8.internal.j: Invalid output: build/dex
+Output must be a .zip or .jar archive or an existing directory]
+ls: cannot access 'build/dex/': No such file or directory
+--- 5. empacotar dex ---
+cp: cannot stat 'build/unsigned.apk': No such file or directory
+/home/runner/work/_temp/6a116aef-0a16-4733-aa8a-dd9fc1f8bd81.sh: line 56: cd: build/dex: No such file or directory
+unzip:  cannot find or open build/aligned-input.apk, build/aligned-input.apk.zip or build/aligned-input.apk.ZIP.
+--- 6. zipalign ---
+Unable to open 'build/aligned-input.apk' as zip archive: No such file or directory
+ls: cannot access 'build/pocket.apk': No such file or directory
+--- 7. keystore + apksigner ---
+	at java.base/sun.security.tools.keytool.Main.doCommands(Main.java:1376)
+	at java.base/sun.security.tools.keytool.Main.run(Main.java:423)
+	at java.base/sun.security.tools.keytool.Main.main(Main.java:416)
+	at com.android.apksigner.SignerParams.loadPrivateKeyAndCertsFromKeyStore(SignerParams.java:333)
+	at com.android.apksigner.SignerParams.loadPrivateKeyAndCerts(SignerParams.java:261)
+	at com.android.apksigner.ApkSignerTool.getSignerConfig(ApkSignerTool.java:523)
+	at com.android.apksigner.ApkSignerTool.sign(ApkSignerTool.java:407)
+	at com.android.apksigner.ApkSignerTool.main(ApkSignerTool.java:94)
+ls: cannot access 'build/pocket-signed.apk': No such file or directory
+--- 8. verificar assinatura ---
+Exception in thread "main" java.io.FileNotFoundException: build/pocket-signed.apk (No such file or directory)
+	at java.base/java.io.RandomAccessFile.open0(Native Method)
+	at java.base/java.io.RandomAccessFile.open(RandomAccessFile.java:344)
+	at java.base/java.io.RandomAccessFile.<init>(RandomAccessFile.java:259)
+	at java.base/java.io.RandomAccessFile.<init>(RandomAccessFile.java:213)
+	at com.android.apksig.ApkVerifier.verify(ApkVerifier.java:160)
+	at com.android.apksigner.ApkSignerTool.verify(ApkSignerTool.java:678)
+	at com.android.apksigner.ApkSignerTool.main(ApkSignerTool.java:97)
+===== OK =====
