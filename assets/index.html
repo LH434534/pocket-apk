@@ -1,0 +1,753 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d1117">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Thiairô Hans Awdrey</title>
+<style>
+:root{
+  --bg:#0d1117;--panel:#11161d;--card:#161b26;--line:#232b38;
+  --fg:#e9edf3;--dim:#8b95a7;--acc:#7dd3fc;--acc2:#c084fc;--ok:#4ade80;--err:#f87171;--warn:#fbbf24;
+  --r:14px;--sb:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: light){
+  :root{--bg:#f6f7f9;--panel:#fff;--card:#fff;--line:#e2e6ed;--fg:#12161d;--dim:#586274;--acc:#0284c7;--acc2:#9333ea}
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--fg);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif}
+#app{display:flex;flex-direction:column;height:100dvh;max-width:860px;margin:0 auto}
+header{padding:14px 14px 10px;border-bottom:1px solid var(--line);background:var(--panel)}
+.nm{font-size:20px;font-weight:800;letter-spacing:.2px;margin:0}
+.sub{color:var(--dim);font-size:13px;margin:2px 0 0}
+nav{display:flex;gap:4px;padding:6px 8px;background:var(--panel);border-bottom:1px solid var(--line)}
+nav button{flex:1;background:transparent;border:0;color:var(--dim);padding:9px;font-size:13px;
+  font-weight:600;border-radius:10px;cursor:pointer}
+nav button.on{background:var(--card);color:var(--fg)}
+main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 12px calc(30px + var(--sb))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:13px;margin-bottom:11px}
+.card h3{margin:0 0 8px;font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:8px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:11px;cursor:pointer}
+.tile:active{transform:scale(.98)}
+.tile h4{margin:0 0 3px;font-size:13.5px}
+.tile p{margin:0;font-size:11.5px;color:var(--dim);line-height:1.4}
+label{display:block;font-size:12px;color:var(--dim);margin:9px 0 4px}
+input,textarea,select{width:100%;background:var(--bg);border:1px solid var(--line);color:var(--fg);
+  border-radius:10px;padding:9px 11px;font:inherit;outline:none}
+textarea{min-height:88px;resize:vertical}
+button.b{background:var(--acc2);color:#fff;border:0;border-radius:10px;padding:9px 14px;font-weight:700;cursor:pointer}
+button.g{background:transparent;border:1px solid var(--line);color:var(--fg);border-radius:10px;padding:9px 14px;cursor:pointer}
+button:active{transform:scale(.97)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>*{flex:1;min-width:120px}
+.muted{color:var(--dim);font-size:12px;line-height:1.5}
+.kv{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.kv:last-child{border:0}
+.big{font-size:26px;font-weight:800;text-align:center;padding:14px 0;font-variant-numeric:tabular-nums}
+.center{text-align:center}
+canvas{display:block;margin:0 auto;background:var(--bg);border:1px solid var(--line);border-radius:10px;max-width:100%}
+.pill{display:inline-block;padding:3px 9px;border-radius:20px;background:var(--line);font-size:11px;color:var(--dim);margin:2px 4px 2px 0}
+.hidden{display:none!important}
+#gamewrap{position:fixed;inset:0;background:var(--bg);z-index:50;display:flex;flex-direction:column}
+#gamewrap header{display:flex;align-items:center;gap:8px}
+#gamewrap .body{flex:1;overflow-y:auto;padding:12px}
+#gametitle{font-weight:800;font-size:16px;flex:1}
+#gamebody .card{background:var(--card)}
+.board{display:grid;gap:4px;justify-content:center;margin:8px auto}
+.cell{width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  background:var(--panel);border:1px solid var(--line);border-radius:8px;font-size:20px;cursor:pointer;font-weight:700}
+.cell.x{color:var(--acc)} .cell.o{color:var(--acc2)}
+.cell.open{background:var(--line)}
+.cell.flag{color:var(--warn)}
+.cell.mine{background:rgba(248,113,113,.2)}
+.t2048{font-size:22px;font-weight:800}
+.word{font-size:26px;letter-spacing:9px;text-align:center;font-weight:800;margin:10px 0;font-family:ui-monospace,monospace}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + var(--sb));background:var(--fg);
+  color:var(--bg);padding:8px 14px;border-radius:20px;font-size:13px;font-weight:600;z-index:99;opacity:0;transition:.2s;pointer-events:none}
+.toast.on{opacity:1}
+.tag{display:inline-block;background:var(--line);border:0;color:var(--fg);border-radius:20px;padding:4px 11px;font-size:12px;margin:3px 3px 0 0}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1 class="nm">Thiairô Hans Awdrey</h1>
+    <p class="sub" id="tagline">—</p>
+  </header>
+  <nav id="nav">
+    <button data-t="sobre" class="on">Sobre</button>
+    <button data-t="jogos">Jogos</button>
+    <button data-t="random">Aleatório</button>
+  </nav>
+  <main id="main"></main>
+</div>
+<div id="gamewrap" class="hidden">
+  <header>
+    <button class="g" id="gclose">← voltar</button>
+    <div id="gametitle">jogo</div>
+    <button class="g" id="greset">reiniciar</button>
+  </header>
+  <div class="body" id="gamebody"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ============================================================================
+   Página pessoal + arcade. Um arquivo, sem dependências, funciona offline.
+   ========================================================================== */
+const $ = s => document.querySelector(s);
+const LS = "thiairo.v1";
+const NAME = "Thiairô Hans Awdrey";
+
+const state = load();
+function load(){
+  try{
+    return Object.assign({
+      tagline:"", bio:"", links:[], skills:[],
+      scores:{}, quiz:{n:0,acertos:0}
+    }, JSON.parse(localStorage.getItem(LS)||"{}"));
+  }catch(e){ return {tagline:"",bio:"",links:[],skills:[],scores:{},quiz:{n:0,acertos:0}}; }
+}
+function save(){ try{ localStorage.setItem(LS,JSON.stringify(state)); }catch(e){} }
+function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("on");
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("on"),1700); }
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function ri(n){ return Math.floor(Math.random()*n); }
+function pick(a){ return a[ri(a.length)]; }
+
+/* ============================================================== SOBRE */
+function renderSobre(){
+  $("#tagline").textContent = state.tagline || "toque em editar para escrever algo";
+  const m=$("#main");
+  m.innerHTML =
+   `<div class="card">
+      <h3>Perfil</h3>
+      <label>Título / tagline</label>
+      <input id="fTag" value="${esc(state.tagline)}" placeholder="ex: desenvolvedor, curioso, gato">
+      <label>Sobre</label>
+      <textarea id="fBio" placeholder="Escreva sobre você. Fica salvo neste dispositivo.">${esc(state.bio)}</textarea>
+      <label>Habilidades (separadas por vírgula)</label>
+      <input id="fSk" value="${esc(state.skills.join(", "))}" placeholder="javascript, design, culinária">
+      <label>Links (um por linha: texto|url)</label>
+      <textarea id="fLk" style="min-height:70px" placeholder="GitHub|https://github.com/seuuser">${esc(state.links.map(l=>l.t+"|"+l.u).join("\n"))}</textarea>
+      <div class="row" style="margin-top:10px">
+        <button class="b" id="bSave">Salvar</button>
+        <button class="g" id="bExport">Exportar perfil</button>
+      </div>
+      <p class="muted" style="margin-top:10px">Nada disso sai do seu navegador — fica em localStorage.
+      Para publicar de verdade, exporte e me mande o conteúdo, ou edite o HTML.</p>
+    </div>
+    <div class="card">
+      <h3>Resumo</h3>
+      <div class="kv"><span>Nome</span><b>${esc(NAME)}</b></div>
+      <div class="kv"><span>Tagline</span><b>${esc(state.tagline||"—")}</b></div>
+      <div class="kv"><span>Habilidades</span><b>${state.skills.length?esc(state.skills.join(", ")):"—"}</b></div>
+      <div class="kv"><span>Links</span><b>${state.links.length?state.links.length+" link(s)":"—"}</b></div>
+      <div class="kv"><span>Jogos com recorde</span><b>${Object.keys(state.scores).length}</b></div>
+    </div>
+    <div class="card">
+      <h3>Conquistas</h3>
+      <div id="ach"></div>
+    </div>
+    ${state.links.length?`<div class="card"><h3>Links</h3>
+      ${state.links.map(l=>`<div><a href="${esc(l.u)}" target="_blank" rel="noopener" style="color:var(--acc)">${esc(l.t)}</a></div>`).join("")}
+    </div>`:""}`;
+  $("#bSave").onclick=()=>{
+    state.tagline=$("#fTag").value.trim();
+    state.bio=$("#fBio").value.trim();
+    state.skills=$("#fSk").value.split(",").map(s=>s.trim()).filter(Boolean);
+    state.links=$("#fLk").value.split("\n").map(l=>l.split("|"))
+      .filter(p=>p.length===2).map(p=>({t:p[0].trim(),u:p[1].trim()}));
+    save(); toast("salvo"); renderSobre();
+  };
+  $("#bExport").onclick=()=>{
+    const blob=new Blob([JSON.stringify({name:NAME,...state},null,2)],{type:"application/json"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+    a.download="perfil-thiairo.json"; a.click(); URL.revokeObjectURL(a.href);
+  };
+  const ach=$("#ach");
+  const feitos=[];
+  if(state.bio.length>20) feitos.push("Escreveu uma bio");
+  if(state.skills.length) feitos.push("Listou habilidades");
+  if(state.links.length) feitos.push("Adicionou links");
+  if(Object.keys(state.scores).length>=3) feitos.push("Jogou 3 jogos diferentes");
+  if((state.scores.adivinha||0)>0) feitos.push("Adivinhou um número");
+  if((state.scores.snake||0)>=20) feitos.push("Fez 20 pontos no Snake");
+  if((state.quiz.acertos||0)>=5) feitos.push("Acertou 5 no quiz");
+  ach.innerHTML = feitos.length
+    ? feitos.map(f=>`<span class="tag">🏅 ${esc(f)}</span>`).join("")
+    : '<p class="muted">Jogue e preencha o perfil para desbloquear.</p>';
+}
+
+/* ============================================================== JOGOS */
+const WORDS=["JAVASCRIPT","ALGORITMO","GATO","LIVRO","MONTANHA","ESTRELA","COMPUTADOR",
+  "CAFE","BICICLETA","OCEANO","MUSICA","JORNADA","TECLADO","BORBOLETA","TEMPESTADE"];
+const QUIZ=[
+  ["Qual é o maior planeta do sistema solar?","Júpiter"],
+  ["Quantos elementos tem a tabela periódica?","118"],
+  ["Em que ano o homem pisou na Lua?","1969"],
+  ["Qual é o rio mais longo do mundo?","Nilo"],
+  ["Qual é a capital do Japão?","Tóquio"],
+  ["Quantos continentes existem?","6"],
+  ["Qual é o menor país do mundo?","Vaticano"],
+  ["Que gás as plantas liberam na fotossíntese?","Oxigênio"],
+  ["Quantos ossos tem o corpo humano adulto?","206"],
+  ["Qual é o metal mais abundante na crosta terrestre?","Alumínio"],
+];
+const FRASES=["a raposa marrom salta sobre o cachorro preguiçoso",
+  "programar e como escrever uma carta para o futuro",
+  "um bom codigo e aquele que voce entende amanha",
+  "a curiosidade move mais gente do que a certeza"];
+
+const CLEAN=[];              // funcoes de limpeza do jogo aberto
+function limpar(){ while(CLEAN.length){ try{ CLEAN.pop()(); }catch(e){} } }
+
+function setScore(k,v){ if(!state.scores[k]||v>state.scores[k]){ state.scores[k]=v; save(); } }
+
+const GAMES=[
+{id:"jokenpo", nm:"Jokenpô", ds:"pedra, papel e tesoura",
+ start(el){
+   let p=0,c=0;
+   const opts=[["🪨","pedra"],["📄","papel"],["✂️","tesoura"]];
+   el.innerHTML=`<div class="card center">
+     <div class="big" id="jres">escolha</div>
+     <div class="kv"><span>você</span><b id="jp">0</b></div>
+     <div class="kv"><span>máquina</span><b id="jc">0</b></div>
+     <div class="row" style="margin-top:10px">
+       ${opts.map(o=>`<button class="b" data-v="${o[1]}">${o[0]} ${o[1]}</button>`).join("")}
+     </div></div>`;
+   el.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{
+     const i=ri(3), maq=opts[i][1], meu=b.dataset.v;
+     let r = meu===maq ? "empate" :
+       ((meu==="pedra"&&maq==="tesoura")||(meu==="papel"&&maq==="pedra")||(meu==="tesoura"&&maq==="papel"))
+       ? "você ganhou 🎉" : "máquina ganhou";
+     if(r.startsWith("você")) p++; else if(r.startsWith("máquina")) c++;
+     $("#jres").textContent = r+" — máquina: "+opts[i][0]+" "+maq;
+     $("#jp").textContent=p; $("#jc").textContent=c;
+     setScore("jokenpo",p);
+   });
+ }},
+
+{id:"adivinha", nm:"Adivinhe o número", ds:"entre 1 e 100",
+ start(el){
+   let n=ri(100)+1, tent=0;
+   el.innerHTML=`<div class="card">
+     <p class="muted">Pensei num número de 1 a 100. Chute:</p>
+     <input type="number" id="ag" placeholder="seu palpite">
+     <button class="b" id="ok" style="margin-top:8px;width:100%">Chutar</button>
+     <div class="big" id="amsg">—</div>
+     <div class="kv"><span>tentativas</span><b id="at">0</b></div>
+     <div class="kv"><span>recorde (menos)</span><b id="ar">${state.scores.adivinha||"—"}</b></div>
+   </div>`;
+   const go=()=>{ const v=parseInt($("#ag").value); if(!v) return;
+     tent++; $("#at").textContent=tent;
+     if(v===n){ $("#amsg").textContent="🎉 acertou em "+tent;
+       if(!state.scores.adivinha||tent<state.scores.adivinha){ state.scores.adivinha=tent; save(); }
+       $("#ar").textContent=tent; n=ri(100)+1; tent=0; $("#at").textContent=0; }
+     else { $("#amsg").textContent = v<n ? "é maior ↑" : "é menor ↓"; } };
+   $("#ok").onclick=go;
+   $("#ag").onkeydown=e=>{ if(e.key==="Enter") go(); };
+ }},
+
+{id:"velha", nm:"Jogo da velha", ds:"você contra uma IA",
+ start(el){
+   let b=Array(9).fill(""), vez="x", fim=false;
+   const V=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+   const ganha=q=>V.some(l=>l.every(i=>q[i]===q[l[0]]&&q[i]));
+   function avalia(q,p){
+     for(const l of V){ if(q[l[0]]&&l.every(i=>q[i]===q[l[0]])) return q[l[0]]==="o"?10:-10; }
+     return 0;
+   }
+   function mm(q,prof,turno){
+     const sc=avalia(q);
+     if(sc!==0) return sc - (sc>0?prof:-prof);
+     if(!q.includes("")) return 0;
+     if(turno==="o"){ let best=-999;
+       for(let i=0;i<9;i++) if(!q[i]){ q[i]="o"; best=Math.max(best,mm(q,prof+1,"x")); q[i]=""; }
+       return best; }
+     let best=999;
+     for(let i=0;i<9;i++) if(!q[i]){ q[i]="x"; best=Math.min(best,mm(q,prof+1,"o")); q[i]=""; }
+     return best;
+   }
+   function ia(){
+     let best=-999, mv=-1;
+     for(let i=0;i<9;i++) if(!b[i]){ b[i]="o"; const v=mm(b,0,"x"); b[i]="";
+       if(v>best){ best=v; mv=i; } }
+     if(mv>=0){ b[mv]="o"; }
+   }
+   function draw(){
+     const g=el.querySelector(".board"); g.innerHTML="";
+     b.forEach((v,i)=>{
+       const c=document.createElement("div");
+       c.className="cell "+(v||""); c.textContent=v==="x"?"✕":v==="o"?"○":"";
+       c.onclick=()=>{
+         if(fim||b[i]) return;
+         b[i]="x";
+         if(!ganha(b)&&b.includes("")) ia();
+         const gx=b.filter(v=>v==="x").length, go=b.filter(v=>v==="o").length;
+         let msg="";
+         if(ganha(b)){ msg = b.filter(v=>v).length%2===1 ? "você ganhou 🎉" : "IA ganhou"; fim=true; setScore("velha",1); }
+         else if(!b.includes("")){ msg="empate"; fim=true; }
+         draw(); if(msg){ el.querySelector("#vmsg").textContent=msg; }
+       };
+       g.appendChild(c);
+     });
+   }
+   el.innerHTML=`<div class="card">
+     <div class="board" style="grid-template-columns:repeat(3,64px)"></div>
+     <div class="big" id="vmsg">sua vez (✕)</div>
+     <button class="g" id="vr" style="margin-top:8px;width:100%">novo jogo</button>
+   </div>`;
+   draw();
+   $("#vr").onclick=()=>{ b=Array(9).fill(""); fim=false; el.querySelector("#vmsg").textContent="sua vez (✕)"; draw(); };
+ }},
+
+{id:"forca", nm:"Forca", ds:"adivinhe a palavra",
+ start(el){
+   const w=pick(WORDS); let err=0, acer=new Set(), done=false;
+   const T=6;
+   function draw(){
+     const mostra=w.split("").map(c=>acer.has(c)?c:"_").join(" ");
+     el.querySelector(".word").textContent=mostra;
+     el.querySelector("#fh").textContent="erros: "+err+"/"+T;
+     el.querySelector("#ft").innerHTML=[...w].map(c=>
+       `<button class="tag" data-l="${c}" ${acer.has(c)?"disabled style='opacity:.35'":""}>${c}</button>`).join("");
+     if(!mostra.includes("_")){ el.querySelector("#fmsg").textContent="🎉 você salvou!"; done=true; setScore("forca",T-err); }
+     if(err>=T){ el.querySelector("#fmsg").textContent="enforcou — era "+w; done=true; }
+     el.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>{
+       if(done) return;
+       const l=b.dataset.l;
+       if(w.includes(l)) acer.add(l); else err++;
+       draw();
+     });
+   }
+   el.innerHTML=`<div class="card">
+     <div class="word"></div>
+     <div class="center muted" id="fh">erros: 0/${T}</div>
+     <div class="big" id="fmsg" style="font-size:16px">—</div>
+     <div id="ft"></div></div>`;
+   draw();
+ }},
+
+{id:"snake", nm:"Snake", ds:"setas ou deslize",
+ start(el){
+   const N=18, S=16;
+   el.innerHTML=`<div class="card"><canvas id="cv" width="${N*S}" height="${N*S}"></canvas>
+     <div class="kv"><span>pontos</span><b id="sp">0</b></div>
+     <div class="kv"><span>recorde</span><b id="sr">${state.scores.snake||0}</b></div>
+     <p class="muted">Setas / WASD / deslize. Espaço pausa.</p></div>`;
+   const cv=$("#cv"), g=cv.getContext("2d");
+   let s=[{x:9,y:9}], d={x:1,y:0}, f={x:14,y:9}, pts=0, live=true, pause=false;
+   function food(){ do{ f={x:ri(N),y:ri(N)}; }while(s.some(p=>p.x===f.x&&p.y===f.y)); }
+   function step(){
+     // se o container saiu do DOM (aba trocada), encerra em vez de estourar
+     if(!el.isConnected){ live=false; return; }
+     if(!live||pause) return;
+     const h={x:s[0].x+d.x, y:s[0].y+d.y};
+     if(h.x<0||h.y<0||h.x>=N||h.y>=N||s.some(p=>p.x===h.x&&p.y===h.y)){ live=false;
+       el.querySelector("#sp").textContent+=" — fim"; setScore("snake",pts); return; }
+     s.unshift(h);
+     if(h.x===f.x&&h.y===f.y){ pts++; $("#sp").textContent=pts; food(); } else s.pop();
+     draw();
+   }
+   function draw(){
+     g.fillStyle=getComputedStyle(document.body).getPropertyValue("--bg").trim()||"#0d1117";
+     g.fillRect(0,0,N*S,N*S);
+     g.fillStyle="#4ade80"; g.fillRect(f.x*S+2,f.y*S+2,S-4,S-4);
+     g.fillStyle="#7dd3fc";
+     s.forEach((p,i)=>{ g.fillStyle = i===0?"#c084fc":"#7dd3fc"; g.fillRect(p.x*S+1,p.y*S+1,S-2,S-2); });
+   }
+   const key=e=>{
+     const k=e.key.toLowerCase();
+     if(k===" "){ pause=!pause; return; }
+     const map={arrowup:[0,-1],w:[0,-1],arrowdown:[0,1],s:[0,1],
+                arrowleft:[-1,0],a:[-1,0],arrowright:[1,0],d:[1,0]};
+     if(map[k]){ const [x,y]=map[k]; if(d.x!==-x||d.y!==-y) d={x,y}; e.preventDefault(); }
+   };
+   document.addEventListener("keydown",key);
+   CLEAN.push(()=>document.removeEventListener("keydown",key));
+   let t0=null;
+   const touch=e=>{
+     const t=e.changedTouches[0];
+     if(!t0){ t0=t; return; }
+     const dx=t.clientX-t0.clientX, dy=t.clientY-t0.clientY;
+     if(Math.abs(dx)>Math.abs(dy)) d = dx>0?{x:1,y:0}:{x:-1,y:0};
+     else d = dy>0?{x:0,y:1}:{x:0,y:-1};
+     t0=null;
+   };
+   cv.addEventListener("touchstart",e=>{t0=e.changedTouches[0];e.preventDefault();},{passive:false});
+   cv.addEventListener("touchend",touch);
+   draw();
+   const iv=setInterval(step,130);
+   CLEAN.push(()=>clearInterval(iv));
+   $("#greset").onclick=()=>{ limpar(); start(el); };
+ }},
+
+{id:"memoria", nm:"Memória", ds:"ache os pares",
+ start(el){
+   const em=["🐱","🚀","🍕","🌵","🎸","🧠","🌙","🔥"];
+   let cs=[...em,...em].sort(()=>Math.random()-.5);
+   let ab=[], ok=new Set(), jog=0;
+   el.innerHTML=`<div class="card">
+     <div class="board" id="mb" style="grid-template-columns:repeat(4,68px)"></div>
+     <div class="kv"><span>jogadas</span><b id="mj">0</b></div>
+     <div class="kv"><span>pares</span><b id="mp">0/8</b></div>
+     <div class="big" id="mm" style="font-size:16px">—</div></div>`;
+   const mb=$("#mb");
+   function draw(){
+     mb.innerHTML="";
+     cs.forEach((v,i)=>{
+       const c=document.createElement("div");
+       c.className="cell"+(ok.has(i)||ab.includes(i)?" open":"");
+       c.textContent=(ok.has(i)||ab.includes(i))?v:"?";
+       c.onclick=()=>{
+         if(ok.has(i)||ab.includes(i)||ab.length===2) return;
+         ab.push(i);
+         if(ab.length===2){ jog++; $("#mj").textContent=jog;
+           if(cs[ab[0]]===cs[ab[1]]){ ok.add(ab[0]); ok.add(ab[1]); ab=[]; }
+           else setTimeout(()=>{ ab=[]; draw(); },600);
+           $("#mp").textContent=ok.size/2+"/8";
+           if(ok.size===16){ $("#mm").textContent="🎉 em "+jog+" jogadas"; setScore("memoria",-jog); }
+         }
+         draw();
+       };
+       mb.appendChild(c);
+     });
+   }
+   draw();
+ }},
+
+{id:"2048", nm:"2048", ds:"junte os números",
+ start(el){
+   let g=Array(16).fill(0), pts=0;
+   function add(){ const v=[]; g.forEach((x,i)=>{if(!x)v.push(i)});
+     if(!v.length) return; g[pick(v)] = Math.random()<.9?2:4; }
+   function slide(lin){
+     const a=lin.filter(x=>x), out=[];
+     for(let i=0;i<a.length;i++){ if(a[i]===a[i+1]){ out.push(a[i]*2); pts+=a[i]*2; i++; } else out.push(a[i]); }
+     while(out.length<4) out.push(0);
+     return out;
+   }
+   function move(dir){
+     const antes=JSON.stringify(g);
+     const idx=[[0,4,8,12],[1,5,9,13],[2,6,10,14],[3,7,11,15]];
+     const row=[[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]];
+     const L = dir==="l"||dir==="r" ? row : idx;
+     L.forEach(ls=>{
+       let v=ls.map(i=>g[i]);
+       if(dir==="r"||dir==="d") v=v.reverse();
+       v=slide(v);
+       if(dir==="r"||dir==="d") v=v.reverse();
+       ls.forEach((i,k)=>g[i]=v[k]);
+     });
+     if(JSON.stringify(g)!==antes) add();
+     draw();
+     if(!g.includes(0) && !pode()){ el.querySelector("#msg").textContent="fim de jogo"; setScore("t2048",pts); }
+   }
+   function pode(){
+     for(let i=0;i<16;i++){ if(!g[i]) return true;
+       const r=Math.floor(i/4), c=i%4;
+       if(c<3&&g[i]===g[i+1]) return true;
+       if(r<3&&g[i]===g[i+4]) return true; }
+     return false;
+   }
+   function draw(){
+     const b=el.querySelector("#b48"); b.innerHTML="";
+     g.forEach(v=>{
+       const c=document.createElement("div");
+       c.className="cell t2048";
+       c.style.background = v? `hsl(${200-Math.log2(v)*9},70%,${v>64?55:35}%)` : "var(--panel)";
+       c.textContent=v||"";
+       b.appendChild(c);
+     });
+     el.querySelector("#p48").textContent=pts;
+     el.querySelector("#r48").textContent=state.scores.t2048||0;
+   }
+   add(); add();
+   el.innerHTML=`<div class="card">
+     <div class="board t2048" id="b48" style="grid-template-columns:repeat(4,68px)"></div>
+     <div class="kv"><span>pontos</span><b id="p48">0</b></div>
+     <div class="kv"><span>recorde</span><b id="r48">${state.scores.t2048||0}</b></div>
+     <div class="center big" id="msg" style="font-size:15px">setas / WASD / deslize</div></div>`;
+   draw();
+   const key=e=>{ const k=e.key.toLowerCase();
+     const m={arrowleft:"l",a:"l",arrowright:"r",d:"r",arrowup:"u",w:"u",arrowdown:"d",s:"d"};
+     if(m[k]) move(m[k]); };
+   document.addEventListener("keydown",key);
+   CLEAN.push(()=>document.removeEventListener("keydown",key));
+   let t0=null;
+   el.addEventListener("touchstart",e=>{t0=e.changedTouches[0]},{passive:true});
+   el.addEventListener("touchend",e=>{
+     if(!t0) return; const t=e.changedTouches[0];
+     const dx=t.clientX-t0.clientX, dy=t.clientY-t0.clientY;
+     if(Math.abs(dx)>20||Math.abs(dy)>20)
+       move(Math.abs(dx)>Math.abs(dy)?(dx>0?"r":"l"):(dy>0?"d":"u"));
+     t0=null;
+   });
+   $("#greset").onclick=()=>{ limpar(); start(el); };
+ }},
+
+{id:"reflexo", nm:"Teste de reflexo", ds:"clique quando ficar verde",
+ start(el){
+   let t0=0, esp=false, res=[];
+   el.innerHTML=`<div class="card">
+     <div id="alvo" style="height:130px;border-radius:12px;background:var(--line);
+       display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px">toque para começar</div>
+     <div class="big" id="rm">—</div>
+     <div class="kv"><span>tentativas</span><b id="rt">0/3</b></div>
+     <div class="kv"><span>média</span><b id="ra">—</b></div></div>`;
+   const a=$("#alvo");
+   a.onclick=()=>{
+     if(!esp){ // começou cedo demais ou inicia
+       if(t0){ a.textContent="cedo demais! toque de novo"; t0=0; a.style.background="var(--line)"; return; }
+       a.style.background="#f87171"; a.textContent="espere o verde…";
+       setTimeout(()=>{ a.style.background="#4ade80"; a.textContent="AGORA!"; t0=performance.now(); esp=true; },
+         800+ri(2200));
+       return;
+     }
+     const ms=Math.round(performance.now()-t0); esp=false; t0=0; res.push(ms);
+     a.style.background="var(--line)";
+     $("#rm").textContent=ms+" ms";
+     $("#rt").textContent=res.length+"/3";
+     if(res.length>=3){ const md=Math.round(res.reduce((x,y)=>x+y,0)/res.length);
+       $("#ra").textContent=md+" ms"; setScore("reflexo",-md); }
+     else a.textContent="toque para a próxima";
+   };
+ }},
+
+{id:"dados", nm:"Dados", ds:"role até 5 dados",
+ start(el){
+   const F=["⚀","⚁","⚂","⚃","⚄","⚅"];
+   el.innerHTML=`<div class="card">
+     <div class="big" id="dd" style="font-size:44px;letter-spacing:6px">🎲</div>
+     <div class="kv"><span>soma</span><b id="ds">—</b></div>
+     <div class="row" style="margin-top:10px">
+       <button class="b" data-n="1">1 dado</button>
+       <button class="b" data-n="2">2 dados</button>
+       <button class="b" data-n="5">5 dados</button>
+     </div></div>`;
+   el.querySelectorAll("[data-n]").forEach(b=>b.onclick=()=>{
+     const n=parseInt(b.dataset.n), v=[];
+     let s=0;
+     for(let i=0;i<n;i++){ const x=ri(6); v.push(F[x]); s+=x+1; }
+     $("#dd").textContent=v.join(" ");
+     $("#ds").textContent=s;
+   });
+ }},
+
+{id:"quiz", nm:"Quiz", ds:"10 perguntas de cultura geral",
+ start(el){
+   let i=0, ac=0;
+   function q(){
+     if(i>=QUIZ.length){
+       el.innerHTML=`<div class="card center">
+         <div class="big">${ac}/${QUIZ.length}</div>
+         <p class="muted">${ac>=8?"excelente":ac>=5?"bom":"Continue tentando"}</p>
+         <button class="b" id="qr" style="width:100%">jogar de novo</button></div>`;
+       state.quiz.n+=QUIZ.length; state.quiz.acertos+=ac; save();
+       $("#qr").onclick=()=>{ i=0; ac=0; q(); };
+       return;
+     }
+     const [p,r]=QUIZ[i];
+     el.innerHTML=`<div class="card">
+       <div class="kv"><span>pergunta</span><b>${i+1}/${QUIZ.length}</b></div>
+       <p style="font-size:16px;font-weight:600">${esc(p)}</p>
+       <input id="qa" placeholder="sua resposta" autocomplete="off">
+       <button class="b" id="qk" style="margin-top:8px;width:100%">Responder</button>
+       <div class="big" id="qm" style="font-size:15px">—</div></div>`;
+     const go=()=>{
+       const v=$("#qa").value.trim().toLowerCase();
+       const ok = v && (r.toLowerCase().includes(v) || v.includes(r.toLowerCase().split(" ")[0]));
+       if(ok) ac++;
+       $("#qm").textContent = (ok?"✅ certo":"❌ era: "+r)+"  (acertos: "+ac+")";
+       setTimeout(()=>{ i++; q(); }, 1200);
+     };
+     $("#qk").onclick=go;
+     $("#qa").onkeydown=e=>{ if(e.key==="Enter") go(); };
+     $("#qa").focus();
+   }
+   q();
+ }},
+
+{id:"minas", nm:"Campo minado", ds:"8x8, 10 minas",
+ start(el){
+   const N=8, M=10;
+   let g=Array(N*N).fill(0), vis=Array(N*N).fill(false), fl=Array(N*N).fill(false), fim=false;
+   let minas=new Set();
+   while(minas.size<M) minas.add(ri(N*N));
+   minas.forEach(i=>g[i]=-1);
+   for(let i=0;i<N*N;i++){
+     if(g[i]===-1) continue;
+     const r=Math.floor(i/N), c=i%N; let n=0;
+     for(let dr=-1;dr<=1;dr++) for(let dc=-1;dc<=1;dc++){
+       const rr=r+dr, cc=c+dc;
+       if(rr>=0&&cc>=0&&rr<N&&cc<N&&g[rr*N+cc]===-1) n++;
+     }
+     g[i]=n;
+   }
+   function abre(i){
+     if(fim||vis[i]||fl[i]) return;
+     vis[i]=true;
+     if(g[i]===-1){ fim=true; vis=vis.map(()=>true); el.querySelector("#mm2").textContent="💥 acabou";
+       setScore("minas",0); draw(); return; }
+     if(g[i]===0){
+       const r=Math.floor(i/N), c=i%N;
+       for(let dr=-1;dr<=1;dr++) for(let dc=-1;dc<=1;dc++){
+         const rr=r+dr, cc=c+dc;
+         if(rr>=0&&cc>=0&&rr<N&&cc<N&&!vis[rr*N+cc]) abre(rr*N+cc);
+       }
+     }
+     if(vis.filter(Boolean).length===N*N-M){ el.querySelector("#mm2").textContent="🎉 limpo!";
+       setScore("minas",1); }
+     draw();
+   }
+   function draw(){
+     const b=el.querySelector("#bmin"); b.innerHTML="";
+     for(let i=0;i<N*N;i++){
+       const c=document.createElement("div");
+       c.className="cell"+(vis[i]?" open":"")+(fl[i]?" flag":"")+(vis[i]&&g[i]===-1?" mine":"");
+       c.textContent = fl[i]?"🚩" : vis[i] ? (g[i]===-1?"💣":g[i]||"") : "";
+       c.onclick=()=>abre(i);
+       c.oncontextmenu=e=>{ e.preventDefault(); if(!vis[i]){ fl[i]=!fl[i]; draw(); } };
+       c.addEventListener("dblclick",()=>{ if(!vis[i]){ fl[i]=true; draw(); } });
+       b.appendChild(c);
+     }
+   }
+   el.innerHTML=`<div class="card">
+     <div class="board" id="bmin" style="grid-template-columns:repeat(8,34px)"></div>
+     <div class="center big" id="mm2" style="font-size:15px">toque nas casas</div>
+     <p class="muted">Toque longo ou duplo-toque marca bandeira.</p>
+     <button class="g" id="mr" style="width:100%;margin-top:8px">novo campo</button></div>`;
+   draw();
+   $("#mr").onclick=()=>start(el);
+ }},
+
+{id:"digitacao", nm:"Corrida de digitação", ds:"palavras por minuto",
+ start(el){
+   const f=pick(FRASES);
+   el.innerHTML=`<div class="card">
+     <p style="font-size:15px;font-weight:600" id="txt2">${esc(f)}</p>
+     <textarea id="dg" placeholder="digite aqui…" style="min-height:70px"></textarea>
+     <div class="kv"><span>tempo</span><b id="dt">0.0 s</b></div>
+     <div class="kv"><span>WPM</span><b id="dw">—</b></div>
+     <div class="kv"><span>recorde</span><b id="dr">${state.scores.wpm||0}</b></div>
+     <div class="big" id="dm" style="font-size:15px">comece a digitar</div></div>`;
+   let t0=null;
+   $("#dg").oninput=()=>{
+     if(!t0) t0=performance.now();
+     const v=$("#dg").value;
+     const s=(performance.now()-t0)/1000;
+     $("#dt").textContent=s.toFixed(1)+" s";
+     if(v===f){ const wpm=Math.round((f.length/5)/(s/60));
+       $("#dw").textContent=wpm; $("#dm").textContent="🎉 pronto!";
+       if(wpm>(state.scores.wpm||0)){ state.scores.wpm=wpm; save(); $("#dr").textContent=wpm; }
+       $("#dg").disabled=true; }
+   };
+ }},
+];
+
+function renderJogos(){
+  const m=$("#main");
+  m.innerHTML=`<div class="grid">${GAMES.map(g=>
+    `<div class="tile" data-g="${g.id}"><h4>${esc(g.nm)}</h4><p>${esc(g.ds)}</p>
+      <span class="pill">${state.scores[g.id]!==undefined?("recorde "+esc(String(state.scores[g.id]))):"jogar"}</span></div>`
+  ).join("")}</div>
+  <div class="card"><h3>Recordes</h3>
+    ${Object.keys(state.scores).length
+      ? Object.entries(state.scores).map(([k,v])=>{
+          const g=GAMES.find(x=>x.id===k);
+          return `<div class="kv"><span>${esc(g?g.nm:k)}</span><b>${esc(String(v))}</b></div>`;}).join("")
+      : '<p class="muted">Nenhum ainda.</p>'}</div>`;
+  m.querySelectorAll("[data-g]").forEach(t=>t.onclick=()=>abrir(t.dataset.g));
+}
+function abrir(id){
+  const g=GAMES.find(x=>x.id===id); if(!g) return;
+  limpar();                       // encerra o jogo anterior (timers/listeners)
+  $("#gamewrap").classList.remove("hidden");
+  $("#gametitle").textContent=g.nm;
+  const b=$("#gamebody"); b.innerHTML="";
+  g.start(b);
+}
+function fechar(){
+  limpar();
+  $("#gamewrap").classList.add("hidden");
+  $("#gamebody").innerHTML="";
+  renderJogos(); renderSobreTag();
+}
+$("#gclose").onclick=fechar;
+$("#greset").onclick=()=>{
+  const t=$("#gametitle").textContent;
+  const g=GAMES.find(x=>x.nm===t); if(!g) return;
+  limpar(); g.start($("#gamebody"));
+};
+function renderSobreTag(){ $("#tagline").textContent = state.tagline || "—"; }
+
+/* ============================================================== ALEATÓRIO */
+function renderRandom(){
+  const m=$("#main");
+  const gens=[
+    ["Número","número entre 1 e 1000",()=>String(ri(1000)+1)],
+    ["Moeda","cara ou coroa",()=>pick(["cara 🪙","coroa 🦅"])],
+    ["Senha","16 caracteres fortes",()=>{
+      const c="abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%&*";
+      let s=""; for(let i=0;i<16;i++) s+=c[ri(c.length)]; return s; }],
+    ["Cor","hex + amostra",()=>{ const h="#"+"0123456789abcdef".split("")
+      .sort(()=>Math.random()-.5).slice(0,6).join(""); return h; }],
+    ["Nome","nome fictício",()=>{
+      const n=["Ana","Bruno","Caio","Dara","Elias","Fernanda","Gael","Helena","Iuri","Júlia","Kai","Luna"];
+      const s=["Alves","Barbosa","Cardoso","Dias","Esteves","Ferreira","Gomes","Horta","Lima","Moraes"];
+      return pick(n)+" "+pick(s); }],
+    ["Carta","uma do baralho",()=>{
+      const v=["A","2","3","4","5","6","7","8","9","10","J","Q","K"], n=["♠","♥","♦","♣"];
+      return pick(v)+pick(n); }],
+    ["Decisão","sim ou não",()=>pick(["sim ✅","não ❌","talvez 🤔","pergunte depois"])],
+    ["Desafio","algo para fazer agora",()=>pick([
+      "escreva 3 linhas sobre seu dia","beba um copo de água",
+      "arrume uma gaveta","mande mensagem para alguém que você não fala há meses",
+      "faça 10 flexões","desenhe algo em 60 segundos","escute uma música nova",
+      "leia 5 páginas de qualquer livro","anote uma ideia que você teve hoje"])],
+    ["Emoji","três aleatórios",()=>{
+      const e="🚀🌙🔥🌵🍕🎸🧠🐱🦊🌊⚡🎲🍀🎯🧩🛸";
+      return [0,0,0].map(()=>e[ri(e.length)]).join(" "); }],
+    ["Data","um dia qualquer",()=>{
+      const y=1970+ri(56), mo=1+ri(12), d=1+ri(28);
+      return String(d).padStart(2,"0")+"/"+String(mo).padStart(2,"0")+"/"+y; }],
+  ];
+  m.innerHTML=`<div class="grid">${gens.map((g,i)=>
+    `<div class="tile" data-r="${i}"><h4>${esc(g[0])}</h4><p>${esc(g[1])}</p></div>`).join("")}</div>
+    <div class="card"><div class="big" id="rout">toque em um gerador</div>
+      <button class="g" id="rcopy" style="width:100%;margin-top:8px">copiar resultado</button></div>`;
+  let ultimo="";
+  m.querySelectorAll("[data-r]").forEach(t=>t.onclick=()=>{
+    const v=gens[parseInt(t.dataset.r)][2]();
+    ultimo=v;
+    const o=$("#rout"); o.textContent=v;
+    if(/^#[0-9a-f]{6}$/.test(v)){
+      o.innerHTML=`<span style="display:inline-block;width:44px;height:44px;border-radius:10px;
+        background:${v};vertical-align:middle;margin-right:10px;border:1px solid var(--line)"></span>${v}`;
+    }
+  });
+  $("#rcopy").onclick=()=>{ if(!ultimo) return toast("gere algo primeiro");
+    navigator.clipboard?.writeText(ultimo).then(()=>toast("copiado"),()=>toast("sem permissão")); };
+}
+
+/* ============================================================== NAV */
+function navTo(t){
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));
+  if(t==="sobre") renderSobre();
+  if(t==="jogos") renderJogos();
+  if(t==="random") renderRandom();
+}
+document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>navTo(b.dataset.t));
+navTo("sobre");
+renderSobreTag();
+
+window.Site = {state, GAMES, save, ri, pick};
+</script>
+</body>
+</html>
