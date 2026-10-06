@@ -1,4 +1,4 @@
-===== BUILD 2026-10-06T21:02:08Z =====
+===== BUILD 2026-10-06T21:03:05Z =====
 ANDROID_HOME=/usr/local/lib/android/sdk
 build-tools: /usr/local/lib/android/sdk/build-tools/37.0.0
 platform: /usr/local/lib/android/sdk/platforms/android-37.2
@@ -8,50 +8,37 @@ android.jar existe: sim
 /usr/local/lib/android/sdk/build-tools/37.0.0/zipalign
 /usr/local/lib/android/sdk/build-tools/37.0.0/apksigner
 --- 1. aapt2 compile ---
--rw-r--r-- 1 runner runner 1480 Oct  6 21:02 build/res.zip
+-rw-r--r-- 1 runner runner 1480 Oct  6 21:03 build/res.zip
 --- 2. aapt2 link ---
--rw-r--r-- 1 runner runner 14788 Oct  6 21:02 build/unsigned.apk
+-rw-r--r-- 1 runner runner 14788 Oct  6 21:03 build/unsigned.apk
 --- 3. javac ---
 2
 Note: src/com/thiairo/pocket/MainActivity.java uses or overrides a deprecated API.
 Note: Recompile with -Xlint:deprecation for details.
 11
 --- 4. d8 ---
-11
-		at com.android.tools.r8.BaseCommand$Builder.build(R8_9.2.4-dev_ca5b565a5c7da61f18c57930a2823deaa7db40f41bc4509a15d64fc6a8b340be:2)
-		... 4 more
-	Caused by: com.android.tools.r8.internal.j: java.nio.file.NoSuchFileException: ./com/thiairo/pocket/R$style.class
-		at com.android.tools.r8.internal.fk3.a(R8_9.2.4-dev_ca5b565a5c7da61f18c57930a2823deaa7db40f41bc4509a15d64fc6a8b340be:21)
-		at com.android.tools.r8.internal.fk3.error(R8_9.2.4-dev_ca5b565a5c7da61f18c57930a2823deaa7db40f41bc4509a15d64fc6a8b340be:1)
-		at com.android.tools.r8.utils.i$a.a(R8_9.2.4-dev_ca5b565a5c7da61f18c57930a2823deaa7db40f41bc4509a15d64fc6a8b340be:123)
-		at com.android.tools.r8.utils.i$a.c(R8_9.2.4-dev_ca5b565a5c7da61f18c57930a2823deaa7db40f41bc4509a15d64fc6a8b340be:21)
-		at com.android.tools.r8.BaseCommand$Builder.e(R8_9.2.4-dev_ca5b565a5c7da61f18c57930a2823deaa7db40f41bc4509a15d64fc6a8b340be:3)
-		at com.android.tools.r8.BaseCommand$Builder.a(R8_9.2.4-dev_ca5b565a5c7da61f18c57930a2823deaa7db40f41bc4509a15d64fc6a8b340be:16)
-		at com.android.tools.r8.BaseCommand$Builder.addProgramFiles(R8_9.2.4-dev_ca5b565a5c7da61f18c57930a2823deaa7db40f41bc4509a15d64fc6a8b340be:3)
-		at com.android.tools.r8.BaseCommand$Builder.addProgramFiles(R8_9.2.4-dev_ca5b565a5c7da61f18c57930a2823deaa7db40f41bc4509a15d64fc6a8b340be:1)
-		at com.android.tools.r8.q.a(R8_9.2.4-dev_ca5b565a5c7da61f18c57930a2823deaa7db40f41bc4509a15d64fc6a8b340be:274)
-		at com.android.tools.r8.D8Command.parse(R8_9.2.4-dev_ca5b565a5c7da61f18c57930a2823deaa7db40f41bc4509a15d64fc6a8b340be:1)
-		... 4 more
-	Caused by: [CIRCULAR REFERENCE: java.nio.file.NoSuchFileException: ./com/thiairo/pocket/R$style.class]
-total 0
+classes encontradas: 11
+build/obj/com/thiairo/pocket/MainActivity$Bridge.class
+build/obj/com/thiairo/pocket/MainActivity$1.class
+build/obj/com/thiairo/pocket/R$string.class
+total 12
+-rw-r--r-- 1 runner runner 9932 Oct  6 21:03 classes.dex
 --- 5. empacotar dex ---
-
-zip error: Nothing to do! (../../build/aligned-input.apk)
-      484  1980-01-01 00:00   res/drawable/ic_launcher_bg.xml
       960  1980-01-01 00:00   resources.arsc
     34996  1980-01-01 00:00   assets/index.html
+     9932  2026-10-06 21:03   classes.dex
 ---------                     -------
-    39028                     4 files
+    48960                     5 files
 --- 6. zipalign ---
--rw-r--r-- 1 runner runner 14788 Oct  6 21:02 build/pocket.apk
+-rw-r--r-- 1 runner runner 19807 Oct  6 21:03 build/pocket.apk
 --- 7. keystore + apksigner ---
 Generating 2,048 bit RSA key pair and self-signed certificate (SHA256withRSA) with a validity of 10,000 days
 	for: CN=Pocket, OU=Dev, O=Thiairo, L=SP, C=BR
 [Storing build/pocket.keystore]
--rw-r--r-- 1 runner runner 20962 Oct  6 21:02 build/pocket-signed.apk
+-rw-r--r-- 1 runner runner 29211 Oct  6 21:03 build/pocket-signed.apk
 --- 8. verificar assinatura ---
 V3.0 Signer: certificate DN: CN=Pocket, OU=Dev, O=Thiairo, L=SP, C=BR
-V3.0 Signer: certificate SHA-256 digest: 566dadfebe1e0537e180d0f5c12bedf953c6a9b31f70a8300acffe0e29cb0613
-V3.0 Signer: certificate SHA-1 digest: c29d1340ef43ebefb37717c63c73945c238690e8
-V3.0 Signer: certificate MD5 digest: cfe432e8585f50ca67c224b2dc5ec9bc
+V3.0 Signer: certificate SHA-256 digest: ce1023a15d5030943ff581d72eb1fe40b07078c550eadf895cd025dcc8fcee85
+V3.0 Signer: certificate SHA-1 digest: dd3720cac5b755712236bd6aaad0f9b9cd240811
+V3.0 Signer: certificate MD5 digest: 6764d86ef447356a559e0d9f17df4d1e
 ===== OK =====
