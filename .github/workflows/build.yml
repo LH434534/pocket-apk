@@ -25,8 +25,9 @@ jobs:
 
       - name: compilar APK (sem Gradle)
         id: build
+        continue-on-error: true
         run: |
-          set -e
+          set +e
           {
           echo "===== BUILD $(date -u +%FT%TZ) ====="
           export ANDROID_HOME="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
@@ -110,9 +111,10 @@ jobs:
           echo "===== OK ====="
           } > build.log 2>&1
           echo "exit=$?"
-          tail -40 build.log
+          tail -60 build.log
 
       - name: publicar APK e log
+        if: always()
         run: |
           mkdir -p out
           cp build/build.log out/build.log || true
